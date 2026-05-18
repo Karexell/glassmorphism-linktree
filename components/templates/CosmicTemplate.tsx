@@ -7,6 +7,7 @@ import {
   Globe, Github, Twitter, Instagram, Youtube, Music,
   Mail, Link, ExternalLink, Linkedin, Twitch, Send
 } from 'lucide-react'
+import ShareButton from '@/components/ShareButton'
 
 const iconMap: Record<string, React.ComponentType<any>> = {
   globe: Globe, github: Github, twitter: Twitter,
@@ -135,6 +136,16 @@ export default function CosmicTemplate({ data, isPreview }: TemplateProps) {
                       )}
                     </div>
                     <span className="flex-1 font-medium text-sm" style={{ color: `${textColor}E6` }}>{link.title || 'Link'}</span>
+                    {link.shareEnabled && (
+                      <ShareButton
+                        url={link.url}
+                        shareText={link.shareText}
+                        shareIcon={link.shareIcon}
+                        shareButtonColor={link.shareButtonColor}
+                        shareButtonTextColor={link.shareButtonTextColor}
+                        iconRadius={data.iconRadius}
+                      />
+                    )}
                     <ExternalLink size={14} style={{ color: `${textColor}4D` }} className="group-hover:text-white/60 transition-colors flex-shrink-0" />
                   </motion.a>
                 )
