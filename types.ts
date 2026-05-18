@@ -4,6 +4,11 @@ export interface LinkItem {
   url: string
   icon: string
   customIcon?: string
+  shareEnabled?: boolean
+  shareText?: string
+  shareIcon?: 'share' | 'copy' | 'link'
+  shareButtonColor?: string
+  shareButtonTextColor?: string
 }
 
 export interface LinkFolder {
