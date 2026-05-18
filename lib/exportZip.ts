@@ -26,9 +26,18 @@ export async function exportZip(data: EditorData) {
     send: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
     link: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
     external: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
+    share: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>',
+    copy: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+    shareLink: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
   }
 
   const getIconSvg = (iconName: string) => iconSvg[iconName] || iconSvg.globe
+
+  const getShareIconSvg = (iconName?: string) => {
+    if (iconName === 'copy') return iconSvg.copy
+    if (iconName === 'link') return iconSvg.shareLink
+    return iconSvg.share
+  }
 
   const linksHtml = data.folders.map(folder => {
     const folderLabel = folder.name
@@ -39,10 +48,14 @@ export async function exportZip(data: EditorData) {
         ? `<img src="${link.customIcon}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:${iconRadius}px">`
         : getIconSvg(link.icon || 'globe')
       const iconBg = link.customIcon ? 'transparent' : theme.iconBg
+      const shareBtn = link.shareEnabled
+        ? `<button onclick="event.preventDefault();event.stopPropagation();navigator.clipboard&&navigator.clipboard.writeText('${(link.url || '').replace(/'/g, "\\'")}').then(function(){this.innerHTML='<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'14\\' height=\\'14\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'2\\' stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\'><polyline points=\\'20 6 9 17 4 12\\'/></svg><span style=\\'margin-left:4px\\'>Copied!</span>';var btn=this;setTimeout(function(){btn.innerHTML='${getShareIconSvg(link.shareIcon).replace(/'/g, "\\'")}'+'<span style=\\'margin-left:4px\\'>${(link.shareText || 'Share').replace(/'/g, "\\'")}</span>'},1500)}.bind(this))" style="display:inline-flex;align-items:center;gap:4px;padding:6px 10px;margin-left:8px;background:${hexToRgba(link.shareButtonColor || '#ffffff', 0.15)};border:1px solid rgba(255,255,255,0.12);border-radius:${Math.max(iconRadius - 2, 6)}px;color:${link.shareButtonTextColor || '#ffffff'};cursor:pointer;font-size:12px;font-family:inherit;transition:background 0.2s;flex-shrink:0" onmouseover="this.style.background='${hexToRgba(link.shareButtonColor || '#ffffff', 0.25)}'" onmouseout="this.style.background='${hexToRgba(link.shareButtonColor || '#ffffff', 0.15)}'">${getShareIconSvg(link.shareIcon)}<span>${link.shareText || 'Share'}</span></button>`
+        : ''
       return `
         <a href="${link.url || '#'}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:${hexToRgba(glassTint, glassOpacity)};backdrop-filter:blur(${blurIntensity}px);-webkit-backdrop-filter:blur(${blurIntensity}px);border:1px solid rgba(255,255,255,0.12);border-radius:${iconRadius + 8}px;text-decoration:none;color:${textColor}CC;transition:transform 0.2s,box-shadow 0.2s" onmouseover="this.style.transform='scale(1.02)';this.style.boxShadow='0 8px 32px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'">
           <div style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;background:${iconBg};border-radius:${iconRadius}px;color:${textColor}CC">${iconContent}</div>
           <span style="flex:1;font-weight:500;font-size:14px">${link.title || 'Link'}</span>
+          ${shareBtn}
           ${iconSvg.external}
         </a>`
     }).join('')
@@ -50,8 +63,8 @@ export async function exportZip(data: EditorData) {
   }).join('')
 
   const avatarHtml = data.avatarUrl
-    ? `<img src="${data.avatarUrl}" alt="${data.name}" style="width:80px;height:80px;object-fit:cover;border:2px solid rgba(255,255,255,0.2);border-radius:${avatarRadius}">`
-    : `<div style="width:80px;height:80px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;background:linear-gradient(135deg,${theme.from},${theme.to});border-radius:${avatarRadius}">${(data.name || '?').charAt(0).toUpperCase()}</div>`
+    ? `<img src="${data.avatarUrl}" alt="${data.name}" style="display:block;margin:0 auto;width:96px;height:96px;max-width:96px;aspect-ratio:1;object-fit:cover;border:2px solid rgba(255,255,255,0.2);border-radius:${avatarRadius}">`
+    : `<div style="display:block;margin:0 auto;width:96px;height:96px;max-width:96px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;background:linear-gradient(135deg,${theme.from},${theme.to});border-radius:${avatarRadius}">${(data.name || '?').charAt(0).toUpperCase()}</div>`
 
   const backgroundHtml = data.backgroundUrl
     ? data.backgroundType === 'video'
@@ -93,7 +106,7 @@ export async function exportZip(data: EditorData) {
       -webkit-backdrop-filter: blur(${blurIntensity}px);
       border: 1px solid rgba(255,255,255,0.15);
       border-radius: ${cardRadius}px;
-      padding: 32px;
+      padding: 24px;
       text-align: center;
       margin-bottom: 16px;
     }

@@ -7,6 +7,7 @@ import {
   Globe, Github, Twitter, Instagram, Youtube, Music,
   Mail, Link, ExternalLink, Linkedin, Twitch, Send
 } from 'lucide-react'
+import ShareButton from '@/components/ShareButton'
 
 const iconMap: Record<string, React.ComponentType<any>> = {
   globe: Globe, github: Github, twitter: Twitter,
@@ -162,6 +163,16 @@ export default function NebulaTemplate({ data, isPreview }: TemplateProps) {
                       )}
                     </div>
                     <span className="flex-1 font-medium text-sm" style={{ color: `${textColor}CC` }}>{link.title || 'Link'}</span>
+                    {link.shareEnabled && (
+                      <ShareButton
+                        url={link.url}
+                        shareText={link.shareText}
+                        shareIcon={link.shareIcon}
+                        shareButtonColor={link.shareButtonColor}
+                        shareButtonTextColor={link.shareButtonTextColor}
+                        iconRadius={data.iconRadius}
+                      />
+                    )}
                     <ExternalLink size={12} style={{ color: `${textColor}33` }} className="group-hover:text-white/40 transition-colors flex-shrink-0" />
                   </motion.a>
                 )

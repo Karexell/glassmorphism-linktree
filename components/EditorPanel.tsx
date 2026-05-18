@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { EditorData, LinkItem, LinkFolder } from '@/types'
-import { Plus, Trash2, GripVertical, FolderPlus, Folder, ChevronDown, ChevronRight, Image, Video, Repeat, Upload, X } from 'lucide-react'
+import { Plus, Trash2, GripVertical, FolderPlus, Folder, ChevronDown, ChevronRight, Image, Video, Repeat, Upload, X, Share2 } from 'lucide-react'
 import ImageUploader from './ImageUploader'
 import { useState, useRef } from 'react'
 
@@ -59,7 +59,7 @@ export default function EditorPanel({ data, onChange }: Props) {
     ))
   }
 
-  const updateLink = (folderId: string, linkId: string, field: keyof LinkItem, value: string) => {
+  const updateLink = (folderId: string, linkId: string, field: keyof LinkItem, value: any) => {
     update('folders', data.folders.map(f =>
       f.id === folderId
         ? { ...f, links: f.links.map(l => l.id === linkId ? { ...l, [field]: value } : l) }
@@ -400,6 +400,13 @@ export default function EditorPanel({ data, onChange }: Props) {
                             <GripVertical size={10} className="text-white/15" />
                             <span className="text-[10px] text-white/20 flex-1">Link {i + 1}</span>
                             <button
+                              onClick={() => updateLink(folder.id, link.id, 'shareEnabled', !link.shareEnabled)}
+                              className={`transition ${link.shareEnabled ? 'text-purple-400' : 'text-white/15 hover:text-white/40'}`}
+                              title="Toggle share button"
+                            >
+                              <Share2 size={10} />
+                            </button>
+                            <button
                               onClick={() => removeLink(folder.id, link.id)}
                               className="text-white/15 hover:text-red-400 transition"
                             >
@@ -437,6 +444,49 @@ export default function EditorPanel({ data, onChange }: Props) {
                             shape="square"
                             compact
                           />
+                          {link.shareEnabled && (
+                            <div className="mt-1.5 pt-2 border-t border-white/[0.05] space-y-2">
+                              <div className="text-[10px] text-purple-400/60 font-medium">Share Button</div>
+                              <input
+                                type="text"
+                                value={link.shareText || ''}
+                                onChange={(e) => updateLink(folder.id, link.id, 'shareText', e.target.value)}
+                                placeholder="Share"
+                                className="w-full bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-1.5 text-xs text-white placeholder-white/20 focus:outline-none focus:border-white/15 transition"
+                              />
+                              <select
+                                value={link.shareIcon || 'share'}
+                                onChange={(e) => updateLink(folder.id, link.id, 'shareIcon', e.target.value)}
+                                className="w-full bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-1.5 text-xs text-white/50 focus:outline-none focus:border-white/15 transition appearance-none"
+                              >
+                                <option value="share" className="bg-gray-900">Share icon</option>
+                                <option value="copy" className="bg-gray-900">Copy icon</option>
+                                <option value="link" className="bg-gray-900">Link icon</option>
+                              </select>
+                              <div className="flex gap-2">
+                                <div className="flex-1">
+                                  <label className="text-[10px] text-white/30 mb-1 block">Button color</label>
+                                  <input
+                                    type="text"
+                                    value={link.shareButtonColor || '#ffffff'}
+                                    onChange={(e) => updateLink(folder.id, link.id, 'shareButtonColor', e.target.value)}
+                                    placeholder="#ffffff"
+                                    className="w-full bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-1.5 text-xs text-white placeholder-white/20 focus:outline-none focus:border-white/15 transition"
+                                  />
+                                </div>
+                                <div className="flex-1">
+                                  <label className="text-[10px] text-white/30 mb-1 block">Text color</label>
+                                  <input
+                                    type="text"
+                                    value={link.shareButtonTextColor || '#ffffff'}
+                                    onChange={(e) => updateLink(folder.id, link.id, 'shareButtonTextColor', e.target.value)}
+                                    placeholder="#ffffff"
+                                    className="w-full bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-1.5 text-xs text-white placeholder-white/20 focus:outline-none focus:border-white/15 transition"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ))}
 
